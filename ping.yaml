@@ -1,0 +1,24 @@
+---
+- name: Shell module 
+  hosts: all
+  tasks:
+    - name: Run multiple commands
+      shell: |
+        mkdir -p /tmp/{{ inventory_hostname }}-pm
+        date > /tmp/{{ inventory_hostname }}-pm/{{ inventory_hostname }}-date.txt
+        uptime > /tmp/{{ inventory_hostname }}-pm/{{ inventory_hostname }}-uptime.txt
+        echo "Hello World" > /tmp/{{ inventory_hostname }}-pm/{{ inventory_hostname }}-hello.txt
+        ## sosreport --batch --tmp-dir /tmp/{{ inventory_hostname }}-pm/
+        rm -rf /tmp/{{ inventory_hostname }}-pm/{{ inventory_hostname }}-pm.tar
+        ##tar cvf /tmp/{{ inventory_hostname }}-pm/{{ inventory_hostname }}-pm.tar /tmp/{{ inventory_hostname }}-pm/*
+    
+
+    - name: Display the contents of the output file
+      shell: cat /tmp/{{ inventory_hostname }}-pm/{{ inventory_hostname }}-uptime.txt
+      register: displayfile
+    - debug:
+        msg: "{{ displayfile.stdout_lines }}"
+
+    - name: Fetch tar file from remote to local directory
+      fetch: src=/tmp/{{ inventory_hostname }}-pm/{{ inventory_hostname }}-pm.tar dest=/var/lib/awx/projects/mytest1/pmoutput/ flat=yes
+    
